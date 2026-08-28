@@ -64,4 +64,61 @@ def move_marquee():
 def update():
     move_marquee()
 
+def read_question_file():
+    global question_count, questions
+    q_file = open(question_file_name,"r")
+    for question in q_file:
+        questions.append(question)
+        question_count = question_count + 1
+    q_file.close()
+
+def read_next_question():
+    global question_index
+    question_index = question_index+1
+    return questions.pop(0).split(",")
+
+def on_mouse_down(pos):
+    index = 1
+    for box in answer_boxes:
+        if box.collidepoint(pos):
+            if index is int(question[5]):
+                correct_answer()
+            else:
+                game_over()
+    if skip_box.collidepoint(pos):
+        skip_question()
+
+def correct_answer():
+    global score,time_left, questions,question
+    score = score + 1
+    if questions:
+        question = read_next_question()
+        timer_left = 10
+    else:
+        game_over()
+
+def game_over():
+    global question,timer_left,is_game_over
+    msg = f"Game Over - Correct Answers:{score}"
+    question = [msg,"-","-","-","-",5]
+    timer_left = 0
+    is_game_over = True
+
+def skip_question():
+    global is_game_over, question, timer_left
+    if questions and not is_game_over:
+        question = read_next_question()
+        timer_left = 10
+    else:
+        game_over()
+
+def update_time_left():
+    global timer_left
+    if timer_left:
+        timer_left = timer_left-1
+    else:
+        game_over()
+
+read_question_file()
+question = read_next_question()
 pgzrun.go()
